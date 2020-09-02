@@ -1,0 +1,66 @@
+version: "3.7"
+services:
+    kicau-discovery-service:
+        container_name: kicau-discovery-service
+        image: donikrizky/kicau-discovery-service
+        ports:
+         - 8761:8761
+        environment:
+         - DISCOVERY_URL=http://kicau-discovery-service:8761/eureka/
+        networks:
+         - kicau_network
+    kicau-gateway-service:
+        container_name: kicau-gateway-service
+        image: donikrizky/kicau-gateway-service
+        ports:
+         - 9000:9000
+        environment:
+         - EUREKA_SERVER_URL=http://kicau-discovery-service:8761/eureka/
+        depends_on:
+         - kicau-discovery-service
+        networks:
+         - kicau_network
+    dbpostgresql:
+        container_name: dbpostgresql
+        image: postgres
+        ports:
+         - 5432:5432
+        environment:
+         - POSTGRES_PASSWORD=postgres
+         - POSTGRES_USER=postgres
+         - POSTGRES_DB=kicau_db
+        networks:
+         - kicau_network 
+    kicau-user-service:
+        container_name: kicau-user-service
+        image: donikrizky/kicau-user-service
+        ports:
+         - 9001:9001
+        environment:
+         - EUREKA_SERVER_URL=http://kicau-discovery-service:8761/eureka/
+         - DB_URL=jdbc:postgresql://dbpostgresql:5432/kicau_db
+         - DB_USERNAME=postgres
+         - DB_PASSWORD=postgres
+        depends_on:
+         - kicau-discovery-service
+         - kicau-gateway-service
+         - dbpostgresql
+        networks:
+         - kicau_network
+    kicau-item-service:
+        container_name: kicau-item-service
+        image: donikrizky/kicau-item-service
+        ports:
+         - 9002:9002
+        environment:
+         - EUREKA_SERVER_URL=http://kicau-discovery-service:8761/eureka/
+        depends_on:
+         - kicau-discovery-service
+         - kicau-gateway-service
+         - dbpostgresql
+        networks:
+         - kicau_network
+         
+networks:
+    kicau_network:
+        name: kicau_network
