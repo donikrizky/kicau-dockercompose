@@ -30,10 +30,10 @@ services:
          - POSTGRES_USER=postgres
          - POSTGRES_DB=kicau_db
         networks:
-         - kicau_network 
-    kicau-user-service:
-        container_name: kicau-user-service
-        image: donikrizky/kicau-user-service
+         - kicau_network
+    kicau-auth-service:
+        container_name: kicau-mutual-service
+        image: donikrizky/kicau-mutual-service
         ports:
          - 9001:9001
         environment:
@@ -54,10 +54,31 @@ services:
          - 9002:9002
         environment:
          - EUREKA_SERVER_URL=http://kicau-discovery-service:8761/eureka/
+         - DB_URL=jdbc:postgresql://dbpostgresql:5432/kicau_db
+         - DB_USERNAME=postgres
+         - DB_PASSWORD=postgres
         depends_on:
          - kicau-discovery-service
          - kicau-gateway-service
          - dbpostgresql
+         - kicau-auth-service
+        networks:
+         - kicau_network    
+    kicau-mutual-service:
+        container_name: kicau-mutual-service
+        image: donikrizky/kicau-mutual-service
+        ports:
+         - 9003:9003
+        environment:
+         - EUREKA_SERVER_URL=http://kicau-discovery-service:8761/eureka/
+         - DB_URL=jdbc:postgresql://dbpostgresql:5432/kicau_db
+         - DB_USERNAME=postgres
+         - DB_PASSWORD=postgres
+        depends_on:
+         - kicau-discovery-service
+         - kicau-gateway-service
+         - dbpostgresql
+         - kicau-auth-service
         networks:
          - kicau_network
          
