@@ -32,8 +32,8 @@ services:
         networks:
          - kicau_network
     kicau-auth-service:
-        container_name: kicau-mutual-service
-        image: donikrizky/kicau-mutual-service
+        container_name: kicau-auth-service
+        image: donikrizky/kicau-auth-service
         ports:
          - 9001:9001
         environment:
